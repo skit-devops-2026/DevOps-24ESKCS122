@@ -1,0 +1,58 @@
+/* Dashboard Layout Adjustments */
+.container-wide {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.header-card {
+  background: #ffffff;
+  padding: 1.5rem 2rem;
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  margin-bottom: 1.5rem;
+}
+
+.budget-badge {
+  text-align: right;
+  background: #eff6ff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 8px;
+  color: #1d4ed8;
+}
+
+/* Tabs */
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.tab-btn {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.tab-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.btn-add-day {
+  padding: 0.6rem 1.2rem;
+  border: 1px dashed #2563eb;
+  background: transparent;
+  color: #2563eb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: auto;
+}
