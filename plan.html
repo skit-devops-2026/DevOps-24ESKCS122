@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Travel Itinerary Planner</title>
+  <title>Travel Itinerary Planner - Plan Trip</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,84 +11,51 @@
   <nav class="navbar">
     <div class="logo">Travel Itinerary Planner</div>
     <ul class="nav-links">
-      <li><a href="plan.html">Plan Trip</a></li>
-      <li><a href="dashboard.html" class="active">Dashboard</a></li>
+      <li><a href="plan.html" class="active">Plan Trip</a></li>
+      <li><a href="dashboard.html">Dashboard</a></li>
     </ul>
   </nav>
 
-<main class="container-wide">
-    
-    <div class="header-card">
-      <div>
-        <h2>3-Day Trip to Jaipur</h2>
-        <p class="subtitle">Budget: <strong>Moderate</strong> | Vibe: <strong>Culture & Heritage</strong></p>
-      </div>
-      <div class="budget-badge">
-        <span>Estimated Total</span>
-        <h3>₹8,500</h3>
-      </div>
+  <main class="container">
+    <div class="card">
+      <h2>Plan Your Journey</h2>
+      <p class="subtitle">Tell us your preferences to create your customized itinerary.</p>
+
+      <form id="plannerForm">
+        <div class="form-group">
+          <label for="destination">Destination</label>
+          <input type="text" id="destination" placeholder="e.g. Jaipur, Goa, Manali" required>
+        </div>
+
+        <div class="form-group">
+          <label for="totalDays">Duration (Days)</label>
+          <input type="number" id="totalDays" min="1" max="14" value="3" required>
+        </div>
+
+        <div class="form-group">
+          <label for="budgetTier">Budget Tier</label>
+          <select id="budgetTier">
+            <option value="Budget">Budget (Low Cost)</option>
+            <option value="Moderate" selected>Moderate (Standard)</option>
+            <option value="Luxury">Luxury (Premium)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="vibe">Travel Vibe</label>
+          <select id="vibe">
+            <option value="Culture & Heritage">Culture & Heritage</option>
+            <option value="Food & Nightlife">Food & Nightlife</option>
+            <option value="Beach & Coastal">Beach & Coastal</option>
+            <option value="Adventure & Trekking">Adventure & Trekking</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-submit">Generate Itinerary</button>
+      </form>
     </div>
+  </main>
 
-    <div class="tabs-container">
-      <button class="tab-btn active">Day 1</button>
-      <button class="tab-btn">Day 2</button>
-      <button class="tab-btn">Day 3</button>
-      <button class="btn-add-day">+ Add Day</button>
-    </div>
-
-    <div class="activities-grid">
-      
-      <div class="activity-card">
-        <div class="activity-header">
-          <span class="time-slot">10:00 AM - 01:00 PM</span>
-          <span class="rating"> 4.7 / 5</span>
-        </div>
-        <h3>Amber Fort</h3>
-        <p class="activity-desc">Historic hilltop fort with majestic palace architecture and scenic lake views.</p>
-        <div class="activity-footer">
-          <span class="cost">Cost: ₹500</span>
-          <div class="actions">
-            <button class="btn-edit">Edit</button>
-            <button class="btn-delete">Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="activity-card">
-        <div class="activity-header">
-          <span class="time-slot">02:00 PM - 03:30 PM</span>
-          <span class="rating"> 4.6 / 5</span>
-        </div>
-        <h3>Hawa Mahal & Local Bazaar</h3>
-        <p class="activity-desc">Iconic honeycomb palace facade followed by local handicraft shopping at Johari Bazaar.</p>
-        <div class="activity-footer">
-          <span class="cost">Cost: ₹1,200</span>
-          <div class="actions">
-            <button class="btn-edit">Edit</button>
-            <button class="btn-delete">Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="activity-card">
-        <div class="activity-header">
-          <span class="time-slot">07:00 PM - 09:00 PM</span>
-          <span class="rating"> 4.8 / 5</span>
-        </div>
-        <h3>Traditional Rajasthani Dinner</h3>
-        <p class="activity-desc">Authentic local dining experience featuring Dal Baati Churma.</p>
-        <div class="activity-footer">
-          <span class="cost">Cost: ₹800</span>
-          <div class="actions">
-            <button class="btn-edit">Edit</button>
-            <button class="btn-delete">Delete</button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-</main>
-
+  <script src="script.js"></script>
 </body>
 </html>
