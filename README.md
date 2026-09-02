@@ -11,7 +11,7 @@
 
 ## About
 
-<Two or three sentences on what this application does.>
+The Travel Itinerary Planner is a dynamic web application built to simplify and personalize vacation planning. It addresses the time-consuming and fragmented experience of scheduling trips by offering a unified interface where users can customize multi-day itineraries tailored to their budget, timeline, and travel vibe.
 
 ## Tech stack
 
