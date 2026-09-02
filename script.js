@@ -1,4 +1,4 @@
-// Default Mock Data
+// Default Seed Itinerary Data
 const defaultTrip = {
   destination: "Jaipur",
   totalDays: 3,
@@ -20,22 +20,27 @@ const defaultTrip = {
   }
 };
 
-// 1. Questionnaire Form Submission
+// 1. Questionnaire Form Handling (plan.html)
 const plannerForm = document.getElementById("plannerForm");
 if (plannerForm) {
   plannerForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    const destination = document.getElementById("destination").value;
-    const totalDays = parseInt(document.getElementById("totalDays").value);
+    const destination = document.getElementById("destination").value.trim();
+    const totalDays = parseInt(document.getElementById("totalDays").value, 10);
     const budgetTier = document.getElementById("budgetTier").value;
     const vibe = document.getElementById("vibe").value;
 
+    const newItinerary = {};
+    for (let i = 1; i <= totalDays; i++) {
+      newItinerary[i] = defaultTrip.itinerary[i] || [];
+    }
+
     const tripData = {
-      ...defaultTrip,
-      destination,
+      destination: destination || "Jaipur",
       totalDays,
       budgetTier,
-      vibe
+      vibe,
+      itinerary: newItinerary
     };
 
     localStorage.setItem("currentTrip", JSON.stringify(tripData));
@@ -43,7 +48,7 @@ if (plannerForm) {
   });
 }
 
-// 2. Dashboard Logic
+// 2. Dashboard Dynamic Logic (dashboard.html)
 const tabsContainer = document.getElementById("tabsContainer");
 const activitiesContainer = document.getElementById("activitiesContainer");
 
@@ -51,27 +56,27 @@ if (tabsContainer && activitiesContainer) {
   let activeDay = 1;
   const storedTrip = JSON.parse(localStorage.getItem("currentTrip")) || defaultTrip;
 
-  // Render Header Details
+  // Header Details
   document.getElementById("tripTitle").innerText = `${storedTrip.totalDays}-Day Trip to ${storedTrip.destination}`;
   document.getElementById("tripBudget").innerText = storedTrip.budgetTier;
   document.getElementById("tripVibe").innerText = storedTrip.vibe;
 
-  // Calculate & Update Total Budget
+  // Budget Calculator
   function updateBudget() {
     let total = 0;
     Object.values(storedTrip.itinerary).forEach((dayList) => {
-      dayList.forEach((item) => (total += Number(item.cost)));
+      dayList.forEach((item) => (total += Number(item.cost) || 0));
     });
     document.getElementById("totalCostDisplay").innerText = `₹${total.toLocaleString()}`;
   }
 
-  // Render Activities for Selected Day
+  // Activities Renderer
   function renderActivities() {
     const list = storedTrip.itinerary[activeDay] || [];
     activitiesContainer.innerHTML = "";
 
     if (list.length === 0) {
-      activitiesContainer.innerHTML = `<p style="text-align:center; color:#64748b; margin: 2rem 0;">No activities added for Day ${activeDay}.</p>`;
+      activitiesContainer.innerHTML = `<p style="text-align:center; color:#64748b; margin: 2rem 0;">No activities added for Day ${activeDay}. Click <strong>+ Add Activity</strong> to insert one.</p>`;
       return;
     }
 
@@ -96,7 +101,7 @@ if (tabsContainer && activitiesContainer) {
     });
   }
 
-  // Render Day Tabs
+  // Day Tabs Renderer
   function renderTabs() {
     tabsContainer.innerHTML = "";
     for (let i = 1; i <= storedTrip.totalDays; i++) {
@@ -112,7 +117,7 @@ if (tabsContainer && activitiesContainer) {
     }
   }
 
-  // Delete Activity Handler
+  // Delete Activity
   window.deleteActivity = function (id) {
     storedTrip.itinerary[activeDay] = storedTrip.itinerary[activeDay].filter((item) => item.id !== id);
     localStorage.setItem("currentTrip", JSON.stringify(storedTrip));
@@ -120,7 +125,63 @@ if (tabsContainer && activitiesContainer) {
     updateBudget();
   };
 
-  // Initial Load
+  // Modal Controls
+  const modal = document.getElementById("addModal");
+  const openModalBtn = document.getElementById("openAddModalBtn");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+  const addForm = document.getElementById("addActivityForm");
+
+  if (openModalBtn && modal) {
+    openModalBtn.addEventListener("click", () => {
+      const title = document.getElementById("modalDayTitle");
+      if (title) title.innerText = `Add Activity to Day ${activeDay}`;
+      modal.classList.add("active");
+    });
+  }
+
+  if (closeModalBtn && modal) {
+    closeModalBtn.addEventListener("click", () => {
+      modal.classList.remove("active");
+    });
+  }
+
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.classList.remove("active");
+    }
+  });
+
+  if (addForm) {
+    addForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const costInput = document.getElementById("newCost");
+      const costValue = costInput ? Number(costInput.value) || 0 : 0;
+      const selectedRating = document.getElementById("newRating") ? document.getElementById("newRating").value : "5";
+
+      const newActivity = {
+        id: Date.now(),
+        placeName: document.getElementById("newPlaceName").value,
+        timeSlot: document.getElementById("newTimeSlot").value,
+        rating: `${selectedRating} / 5`,
+        cost: costValue,
+        desc: document.getElementById("newDesc").value
+      };
+
+      if (!storedTrip.itinerary[activeDay]) {
+        storedTrip.itinerary[activeDay] = [];
+      }
+      storedTrip.itinerary[activeDay].push(newActivity);
+
+      localStorage.setItem("currentTrip", JSON.stringify(storedTrip));
+      modal.classList.remove("active");
+      addForm.reset();
+      renderActivities();
+      updateBudget();
+    });
+  }
+
+  // Initial Execution
   renderTabs();
   renderActivities();
   updateBudget();
