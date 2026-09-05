@@ -1,0 +1,12 @@
+{
+  "name": "devops-24eskcs122",
+  "version": "1.0.0",
+  "description": "FSD Project DevOps Pipeline",
+  "main": "script.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
