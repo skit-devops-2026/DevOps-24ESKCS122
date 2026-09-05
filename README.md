@@ -15,9 +15,9 @@ The Travel Itinerary Planner is a dynamic web application built to simplify and 
 
 ## Tech stack
 
-- Frontend: <e.g. React>
-- Backend: <e.g. Node.js / Express>
-- Database: <e.g. PostgreSQL>
+- Frontend: HTML,CSS,JavaScript
+- Backend: 
+- Database: 
 
 ## Running locally
 
