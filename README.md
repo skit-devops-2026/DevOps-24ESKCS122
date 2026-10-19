@@ -9,6 +9,12 @@
 |---|---|---|
 | 24ESKCS122 | Dushyant Upadhyay | dushyant006 |
 
+# DevOps-24ESKCS122
+
+## Live Deployment
+- **Live URL:** https://devops-24eskcs122.onrender.com
+- **Status:** Running (Production)
+
 ## About
 
 The Travel Itinerary Planner is a dynamic web application built to simplify and personalize vacation planning. It addresses the time-consuming and fragmented experience of scheduling trips by offering a unified interface where users can customize multi-day itineraries tailored to their budget, timeline, and travel vibe.
