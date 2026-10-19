@@ -66,3 +66,26 @@ describe("M5 Containerization Validation", () => {
     expect(fs.existsSync(composeFile)).toBe(true);
   });
 });
+describe("M7 Kubernetes Manifests Validation", () => {
+  const k8sDir = path.join(__dirname, "../k8s");
+
+  test("Kubernetes deployment manifest present and valid", () => {
+    const deploymentFile = path.join(k8sDir, "deployment.yaml");
+    expect(fs.existsSync(deploymentFile)).toBe(true);
+
+    const content = fs.readFileSync(deploymentFile, "utf8");
+    expect(content).toMatch(/kind:\s*Deployment/i);
+    expect(content).toMatch(/spec:/i);
+    expect(content).toMatch(/replicas:/i);
+  });
+
+  test("Kubernetes service manifest present and valid", () => {
+    const serviceFile = path.join(k8sDir, "service.yaml");
+    expect(fs.existsSync(serviceFile)).toBe(true);
+
+    const content = fs.readFileSync(serviceFile, "utf8");
+    expect(content).toMatch(/kind:\s*Service/i);
+    expect(content).toMatch(/ports:/i);
+    expect(content).toMatch(/targetPort:\s*80/i);
+  });
+});
