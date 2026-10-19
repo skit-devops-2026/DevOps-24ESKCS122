@@ -54,3 +54,15 @@ describe("React Frontend Core Asset Validation", () => {
     expect(modalContent).toMatch(/select id="rating"/i);
   });
 });
+
+describe("M5 Containerization Validation", () => {
+  test("Dockerfile exists in repository root", () => {
+    const dockerfile = path.join(__dirname, "../Dockerfile");
+    expect(fs.existsSync(dockerfile)).toBe(true);
+  });
+
+  test("docker-compose.yml exists in repository root", () => {
+    const composeFile = path.join(__dirname, "../docker-compose.yml");
+    expect(fs.existsSync(composeFile)).toBe(true);
+  });
+});
