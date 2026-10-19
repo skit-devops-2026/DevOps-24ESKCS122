@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/skit-devops-2026/devops-24eskcs122:latest
+    container_name: travel-planner-app
+    ports:
+      - "3000:80"
+    restart: always
+    environment:
+      - NODE_ENV=production
