@@ -1,30 +1,56 @@
 const fs = require("fs");
 const path = require("path");
 
-describe("Frontend Core Asset Validation", () => {
-  test("dashboard.html exists and is not empty", () => {
-    const file = path.join(__dirname, "../dashboard.html");
-    expect(fs.existsSync(file)).toBe(true);
-    const content = fs.readFileSync(file, "utf8");
-    expect(content.length).toBeGreaterThan(0);
+describe("React Frontend Core Asset Validation", () => {
+  const frontendDir = path.join(__dirname, "../frontend");
+
+  test("frontend folder and package.json exist", () => {
+    const pkgPath = path.join(frontendDir, "package.json");
+    expect(fs.existsSync(pkgPath)).toBe(true);
+
+    const pkgContent = JSON.parse(fs.readFileSync(pkgPath, "utf8"));
+    expect(pkgContent.dependencies).toHaveProperty("react");
+    expect(pkgContent.dependencies).toHaveProperty("react-router-dom");
   });
 
-  test("plan.html exists and contains HTML markup", () => {
-    const file = path.join(__dirname, "../plan.html");
-    expect(fs.existsSync(file)).toBe(true);
-    const content = fs.readFileSync(file, "utf8");
-    expect(content).toMatch(/<html|<!DOCTYPE/i);
+  test("public/index.html exists and contains root div", () => {
+    const htmlPath = path.join(frontendDir, "public/index.html");
+    expect(fs.existsSync(htmlPath)).toBe(true);
+
+    const content = fs.readFileSync(htmlPath, "utf8");
+    expect(content).toMatch(/<div id="root"><\/div>/i);
   });
 
-  test("script.js exists", () => {
-    const file = path.join(__dirname, "../script.js");
-    expect(fs.existsSync(file)).toBe(true);
+  test("React entry point and styling exist", () => {
+    const indexJs = path.join(frontendDir, "src/index.js");
+    const appJs = path.join(frontendDir, "src/App.js");
+    const appCss = path.join(frontendDir, "src/App.css");
+
+    expect(fs.existsSync(indexJs)).toBe(true);
+    expect(fs.existsSync(appJs)).toBe(true);
+    expect(fs.existsSync(appCss)).toBe(true);
   });
 
-  test("styles.css exists and contains styling rules", () => {
-    const file = path.join(__dirname, "../styles.css");
-    expect(fs.existsSync(file)).toBe(true);
-    const content = fs.readFileSync(file, "utf8");
-    expect(content.length).toBeGreaterThan(0);
+  test("React pages (PlanTrip and Dashboard) exist and contain JSX logic", () => {
+    const planTrip = path.join(frontendDir, "src/pages/PlanTrip.jsx");
+    const dashboard = path.join(frontendDir, "src/pages/Dashboard.jsx");
+
+    expect(fs.existsSync(planTrip)).toBe(true);
+    expect(fs.existsSync(dashboard)).toBe(true);
+
+    const planContent = fs.readFileSync(planTrip, "utf8");
+    const dashContent = fs.readFileSync(dashboard, "utf8");
+
+    expect(planContent).toMatch(/PlanTrip/i);
+    expect(dashContent).toMatch(/Dashboard/i);
+  });
+
+  test("React modal component exists and has rating dropdown logic", () => {
+    const modalPath = path.join(frontendDir, "src/components/AddActivityModal.jsx");
+    expect(fs.existsSync(modalPath)).toBe(true);
+
+    const modalContent = fs.readFileSync(modalPath, "utf8");
+    expect(modalContent).toMatch(/AddActivityModal/i);
+    expect(modalContent).toMatch(/select id="rating"/i);
   });
 });
