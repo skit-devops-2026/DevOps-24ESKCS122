@@ -34,7 +34,8 @@ make run
 
 ## Live URL
 
-<Add once M5 is done. Until then, leave as is.>
+- **Live URL:** https://devops-24eskcs122.onrender.com
+- **Status:** Running (Production)
 
 ## Health endpoint
 
