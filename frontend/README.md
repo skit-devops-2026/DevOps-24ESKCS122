@@ -2,6 +2,12 @@
 
 This folder contains the complete, dedicated React Single Page Application (SPA) separated from your DevOps lab files.
 
+# DevOps-24ESKCS122
+
+## Live Deployment
+- **Live URL:** https://devops-24eskcs122.onrender.com
+- **Status:** Running (Production)
+
 ## Project Structure
 - `src/components/Navbar.jsx`: Navigation bar with active link state.
 - `src/components/AddActivityModal.jsx`: Modal with numeric 1 to 5 rating dropdown (no star icons).

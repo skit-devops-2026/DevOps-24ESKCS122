@@ -1,0 +1,45 @@
+﻿{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "title": "Travel Itinerary Planner - Production Metrics",
+  "tags": ["travel-planner", "production", "devops"],
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Request Rate (req/sec)",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[5m])",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Application Container Memory Usage",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "container_memory_usage_bytes{container=\"travel-planner-app\"}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Container CPU Usage",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(container_cpu_usage_seconds_total{container=\"travel-planner-app\"}[1m])"
+        }
+      ]
+    }
+  ]
+}
