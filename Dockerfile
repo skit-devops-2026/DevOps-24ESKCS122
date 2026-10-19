@@ -23,5 +23,5 @@ COPY --from=builder /app/build ./
 # Expose HTTP port
 EXPOSE 80
 
-# Start Nginx
+# Start Nginxs
 CMD ["nginx", "-g", "daemon off;"]
