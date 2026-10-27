@@ -1,27 +1,19 @@
-# Stage 1: Build React App
+﻿# Stage 1: Build React static assets
 FROM node:18-alpine AS builder
 WORKDIR /app
 
-# Copy root test/package manifests if needed, and frontend manifests
+# Copy package files and install dependencies
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install
 
-# Copy frontend source code and build production assets
+# Copy frontend source code and build
 COPY frontend/ ./
 RUN npm run build
 
-# Stage 2: Serve with lightweight Nginx web server
+# Stage 2: Serve with Nginx
 FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
-
-# Clean default static assets
 RUN rm -rf ./*
-
-# Copy production build artifacts from builder stage
 COPY --from=builder /app/build ./
-
-# Expose HTTP port
 EXPOSE 80
-
-# Start Nginxs
 CMD ["nginx", "-g", "daemon off;"]
