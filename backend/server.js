@@ -1,33 +1,52 @@
-const express = require("express");
+﻿const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 
-const Trip = require("./models/Trip");
-
 const app = express();
-const PORT = process.env.PORT || 5000;
-
+app.use(cors());
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
 
-// Connect to MongoDB
-const mongoUri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/travel_planner";
+// MongoDB Connection
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/travel_planner";
 mongoose
-  .connect(mongoUri)
+  .connect(MONGODB_URI)
   .then(() => console.log("MongoDB Connected Successfully"))
   .catch((err) => console.error("MongoDB Connection Error:", err.message));
 
-// Health Route
-app.get("/api/health", (req, res) => {
-  res.json({ status: "OK", timestamp: new Date() });
+// Schemas & Models
+const ActivitySchema = new mongoose.Schema({
+  placeName: { type: String, required: true },
+  timeSlot: { type: String, default: "10:00 AM - 01:00 PM" },
+  rating: { type: Number, default: 4.5 },
+  cost: { type: Number, default: 0 },
+  desc: { type: String, default: "" }
+}, { _id: true });
+
+const DaySchema = new mongoose.Schema({
+  dayNumber: { type: Number, required: true },
+  activities: [ActivitySchema]
 });
 
-// -------------------------------------------------------------
-// 4-PIPELINE CRUD ROUTES
-// -------------------------------------------------------------
+const TripSchema = new mongoose.Schema({
+  destination: { type: String, required: true },
+  duration: { type: Number, required: true },
+  budgetTier: { type: String, default: "Moderate" },
+  vibe: { type: String, default: "Leisure" },
+  totalEstimatedCost: { type: Number, default: 0 },
+  days: [DaySchema]
+}, { timestamps: true });
 
-// 1. CREATE PIPELINE: Initialize new trip with starter itinerary
+const Trip = mongoose.models.Trip || mongoose.model("Trip", TripSchema);
+
+// Helper to recalculate total budget
+const recalculateTotal = (days) => {
+  return days.reduce((sum, day) => {
+    return sum + day.activities.reduce((dSum, act) => dSum + (Number(act.cost) || 0), 0);
+  }, 0);
+};
+
+// 1. CREATE TRIP (POST /api/trips)
 app.post("/api/trips", async (req, res) => {
   try {
     const { destination, duration, budgetTier, vibe } = req.body;
@@ -49,109 +68,92 @@ app.post("/api/trips", async (req, res) => {
       });
     }
 
-    const totalCost = initialDays.reduce(
-      (acc, day) => acc + day.activities.reduce((sum, act) => sum + act.cost, 0),
-      0
-    );
-
+    const totalEstimatedCost = recalculateTotal(initialDays);
     const newTrip = new Trip({
       destination,
       duration: numDays,
       budgetTier,
       vibe,
-      totalEstimatedCost: totalCost,
+      totalEstimatedCost,
       days: initialDays
     });
 
-    const savedTrip = await newTrip.save();
-    return res.status(201).json(savedTrip);
+    const saved = await newTrip.save();
+    res.status(201).json(saved);
   } catch (err) {
-    return res.status(500).json({ error: "Failed to create trip: " + err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 2. READ PIPELINE: Get all trips or single trip by ID
+// 2. READ ALL TRIPS (GET /api/trips)
 app.get("/api/trips", async (req, res) => {
   try {
     const trips = await Trip.find().sort({ createdAt: -1 });
-    return res.json(trips);
+    res.json(trips);
   } catch (err) {
-    return res.status(500).json({ error: "Failed to fetch trips: " + err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
+// 3. READ ONE TRIP (GET /api/trips/:id)
 app.get("/api/trips/:id", async (req, res) => {
   try {
     const trip = await Trip.findById(req.params.id);
     if (!trip) return res.status(404).json({ error: "Trip not found" });
-    return res.json(trip);
+    res.json(trip);
   } catch (err) {
-    return res.status(500).json({ error: "Failed to fetch trip: " + err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 3. UPDATE PIPELINE: Update itinerary activities and recalculate budget
+// 4. UPDATE TRIP DAYS / ACTIVITIES (PUT /api/trips/:id)
 app.put("/api/trips/:id", async (req, res) => {
   try {
     const { days } = req.body;
-    let totalEstimatedCost = 0;
+    
+    // Clean activities so string temporary IDs don't trigger CastError
+    const cleanedDays = days.map((day) => ({
+      dayNumber: day.dayNumber,
+      activities: day.activities.map((act) => {
+        const item = {
+          placeName: act.placeName,
+          timeSlot: act.timeSlot,
+          rating: Number(act.rating) || 4.5,
+          cost: Number(act.cost) || 0,
+          desc: act.desc || ""
+        };
+        // Only retain _id if it's already a valid 24-character Mongo ObjectID
+        if (act._id && mongoose.Types.ObjectId.isValid(act._id)) {
+          item._id = act._id;
+        }
+        return item;
+      })
+    }));
 
-    if (days && Array.isArray(days)) {
-      totalEstimatedCost = days.reduce(
-        (acc, d) => acc + d.activities.reduce((s, act) => s + (Number(act.cost) || 0), 0),
-        0
-      );
-    }
+    const totalEstimatedCost = recalculateTotal(cleanedDays);
 
-    const updatedTrip = await Trip.findByIdAndUpdate(
+    const updated = await Trip.findByIdAndUpdate(
       req.params.id,
-      { ...req.body, totalEstimatedCost },
+      { days: cleanedDays, totalEstimatedCost },
       { new: true, runValidators: true }
     );
 
-    if (!updatedTrip) return res.status(404).json({ error: "Trip not found" });
-    return res.json(updatedTrip);
+    res.json(updated);
   } catch (err) {
-    return res.status(500).json({ error: "Failed to update trip: " + err.message });
+    console.error("Update error:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
 
-// 4. DELETE PIPELINE: Remove an entire trip or specific activity
+// 5. DELETE TRIP (DELETE /api/trips/:id)
 app.delete("/api/trips/:id", async (req, res) => {
   try {
-    const deletedTrip = await Trip.findByIdAndDelete(req.params.id);
-    if (!deletedTrip) return res.status(404).json({ error: "Trip not found" });
-    return res.json({ message: "Trip deleted successfully", id: req.params.id });
+    await Trip.findByIdAndDelete(req.params.id);
+    res.json({ message: "Trip deleted successfully" });
   } catch (err) {
-    return res.status(500).json({ error: "Failed to delete trip: " + err.message });
+    res.status(500).json({ error: err.message });
   }
 });
 
-app.delete("/api/trips/:tripId/days/:dayNumber/activities/:activityId", async (req, res) => {
-  try {
-    const { tripId, dayNumber, activityId } = req.params;
-    const trip = await Trip.findById(tripId);
-    if (!trip) return res.status(404).json({ error: "Trip not found" });
-
-    const targetDay = trip.days.find((d) => d.dayNumber === Number(dayNumber));
-    if (!targetDay) return res.status(404).json({ error: "Day not found" });
-
-    targetDay.activities = targetDay.activities.filter(
-      (act) => act._id.toString() !== activityId
-    );
-
-    trip.totalEstimatedCost = trip.days.reduce(
-      (acc, d) => acc + d.activities.reduce((s, act) => s + (Number(act.cost) || 0), 0),
-      0
-    );
-
-    await trip.save();
-    return res.json(trip);
-  } catch (err) {
-    return res.status(500).json({ error: "Failed to delete activity: " + err.message });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Backend server running on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Backend server running on http://localhost:${PORT}`));
